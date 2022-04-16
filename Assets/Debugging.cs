@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public class UnrollTest : MonoBehaviour
+public class Debugging : MonoBehaviour
 {
 
     [SerializeField] ComputeShader CS;
@@ -13,16 +13,16 @@ public class UnrollTest : MonoBehaviour
     private void Start()
     {
 
-        CBUnrolled = new ComputeBuffer(N, sizeof(double));
-        CBNotUnrolled = new ComputeBuffer(N, sizeof(double));
+        CBUnrolled = new ComputeBuffer(N, sizeof(float));
+        CBNotUnrolled = new ComputeBuffer(N, sizeof(float));
 
         CS.SetBuffer(0, "_CBUnrolled", CBUnrolled);
         CS.SetBuffer(0, "_CBNotUnrolled", CBNotUnrolled);
 
         CS.Dispatch(0, (int)((N + (64 - 1)) / 64), 1, 1);
 
-        double[] yourAnsUnrolled = new double[N];
-        double[] yourAnsNotUnrolled = new double[N];
+        float[] yourAnsUnrolled = new float[N];
+        float[] yourAnsNotUnrolled = new float[N];
 
         CBUnrolled.GetData(yourAnsUnrolled);
         CBNotUnrolled.GetData(yourAnsNotUnrolled);
@@ -32,32 +32,32 @@ public class UnrollTest : MonoBehaviour
         for (int i = 0; i < N; i++)
         {
             Debug.Log("Not Unrolled ans = " + yourAnsNotUnrolled[i] + "   ---   " + "Unrolled ans = " + yourAnsUnrolled[i]);
-            yourDisplay.text += yourAnsNotUnrolled[i].ToString() + "\n";
+            yourDisplay.text += i.ToString() + ": " + yourAnsNotUnrolled[i].ToString() + "\n";
         }
 
         yourDisplay.text += "\nUnrolled loop\n";
         for (int i = 0; i < N; i++)
         {
-            yourDisplay.text += yourAnsUnrolled[i].ToString() + "\n";
+            yourDisplay.text += i.ToString() + ": " + yourAnsUnrolled[i].ToString() + "\n";
         }
 
         CBUnrolled.Release();
         CBNotUnrolled.Release();
 
 
-        // These are the result I (the author) gets when running the above script:
-        double[] myAnsNotUnrolled = new double[]{ -0.160999998450279, -0.150999998673797, 0.199847648978894, 0.198463366517202 };
-        double[] myAnsUnrolled = new double[]{ 0.197165968601361, 0.195968076362597, 0.194871433045889, 0.193876681728184 };
+        // These are the result I (the author) get when running the above script:
+        float[] myAnsNotUnrolled = new float[]{ -0.1610027f, -0.1510025f, 0.1998477f, 0.1984635f };
+        float[] myAnsUnrolled = new float[]{ -0.1609996f, -0.1510009f, 0.1998638f, 0.1984647f };
 
         myDisplay.text = "Not unrolled loop\n";
         for (int i = 0; i < N; i++)
         {
-            myDisplay.text += myAnsNotUnrolled[i].ToString() + "\n";
+            myDisplay.text += i.ToString() + ": " + myAnsNotUnrolled[i].ToString() + "\n";
         }
         myDisplay.text += "\nUnrolled loop\n";
         for (int i = 0; i < N; i++)
         {
-            myDisplay.text += myAnsUnrolled[i].ToString() + "\n";
+            myDisplay.text += i.ToString() + ": " + myAnsUnrolled[i].ToString() + "\n";
         }
     }
 

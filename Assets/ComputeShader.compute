@@ -1,29 +1,29 @@
 #pragma kernel CSMain 
 
-RWStructuredBuffer<double> _CBUnrolled, _CBNotUnrolled;
+RWStructuredBuffer<float> _CBUnrolled, _CBNotUnrolled;
 
 // Dummy function for Newtons method
-double fDummy(double k, double fnh, double h, double theta)
+float fDummy(float k, float fnh, float h, float theta)
 {
-    return fnh * fnh * k * h * cos((float) theta) * cos((float) theta) - (double) tanh((float) (k * h));
+    return fnh * fnh * k * h * cos((float) theta) * cos((float) theta) - (float) tanh((float) (k * h));
 }
  
 // Derivative of Dummy function above using a central finite difference scheme.
-double dfDummy(double k, double fnh, double h, double theta)
+float dfDummy(float k, float fnh, float h, float theta)
 {
-    return (fDummy(k + (double) 1e-3, fnh, h, theta) - fDummy(k - (double) 1e-3, fnh, h, theta)) / (double) 2e-3;
+    return (fDummy(k + (float) 1e-3, fnh, h, theta) - fDummy(k - (float) 1e-3, fnh, h, theta)) / (float) 2e-3;
 }
  
 // Function to solve.
-double f(double fnh, double h, double theta)
+float f(float fnh, float h, float theta)
 {
     // Solved using Newton's method.
     int max_iter = 50;
-    double epsilon = 1e-8;
-    double fxn, dfxn;
+    float epsilon = 1e-8;
+    float fxn, dfxn;
  
     // Define initial guess for k, herby denoted as x.
-    double xn = 10.0;
+    float xn = 10.0;
  
     for (int n = 0; n < max_iter; n++)
     {
@@ -53,13 +53,13 @@ void CSMain(uint3 threadID : SV_DispatchThreadID)
     int N = 4;
     
     // ---------------
-    double fnh = 0.9, h = 4.53052, theta = -0.161, dtheta = 0.01, k = 1.0; // Example values.
+    float fnh = 0.9, h = 4.53052, theta = -0.161, dtheta = 0.01, k = 1.0; // Example values.
 
     for (int i = 0; i < N; i++)             // Not unrolled loop (regular loop).    
     {
         if (i < 2)
         {
-            _CBNotUnrolled[i] = ((k + (double) 1e-3) * theta - (k - (double) 1e-3) * theta) / (double) 2e-3;
+            _CBNotUnrolled[i] = ((k + 1e-3) * theta - (k - 1e-3) * theta) / 2e-3;
         }
         else
         {
@@ -68,11 +68,12 @@ void CSMain(uint3 threadID : SV_DispatchThreadID)
         theta += dtheta;
     }
     
+    theta = -0.161; // Need to reset theta, as it changes within the loop. All other values are constant.
     [unroll(N)] for (int j = 0; j < N; j++) // Unrolled loop.
     {
-        if (i < 2)
+        if (j < 2)
         {
-            _CBUnrolled[j] = ((k + (double) 1e-3) * theta - (k - (double) 1e-3) * theta) / (double) 2e-3;
+            _CBUnrolled[j] = ((k + 1e-3) * theta - (k - 1e-3) * theta) / 2e-3;
         }
         else
         {
