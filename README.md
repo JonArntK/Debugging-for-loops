@@ -1,5 +1,5 @@
 # Debugging-for-loops
-Made to help with debugging for loops in HLSL compute shaders
+Made to help with debugging for loops in HLSL compute shaders. If you simply want to run the program, download the "Build.zip" file and run "Test.exe".
 
 The example script (compute shader) found in this Unity-project is currently computed using only floats. However, I have found the difference to be even more noticable when using doubles. The reason double is not used here is to remove the possibility that the errors are due to convertion between the scalar types.
 
